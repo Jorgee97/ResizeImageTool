@@ -1,10 +1,16 @@
 package main
 
 import (
+	"ResizeImageTool/handlers"
+	"fmt"
 	"image"
 	"image/jpeg"
+	"log"
+	"net/http"
 	"os"
+	"time"
 
+	"github.com/gorilla/mux"
 	"github.com/nfnt/resize"
 )
 
@@ -30,5 +36,17 @@ func transformImage(path string, height, width uint) {
 }
 
 func main() {
-	transformImage("andrea.jpeg", 1080, 1920)
+	//transformImage("andrea.jpeg", 1080, 1920)
+
+	router := mux.NewRouter()
+	router.HandleFunc("/resize/{width}/{height}", handlers.ResizeImage).Methods("POST")
+	srv := &http.Server{
+		Handler:      router,
+		Addr:         "0.0.0.0:8181",
+		WriteTimeout: 15 * time.Second,
+		ReadTimeout:  15 * time.Second,
+	}
+
+	fmt.Printf("Server is running at address %s: \n", srv.Addr)
+	log.Fatal(srv.ListenAndServe())
 }
